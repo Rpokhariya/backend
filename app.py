@@ -3,6 +3,7 @@ from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import pickle
 import numpy as np
+import gzip
 
 app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
 CORS(app)
@@ -17,8 +18,13 @@ with open('similarity_score.pkl', 'rb') as f:
 with open('top50_book_info.pkl', 'rb') as f:
     book_info = pickle.load(f)
 
+with gzip.open("book_info.pkl.gz", "rb") as f:
+    full_book_info = pickle.load(f)
+
+
 # Normalizing keys for safe lookup
-book_info = {k.strip(): v for k, v in book_info.items()}
+top_book_info = {k.strip(): v for k, v in book_info.items()}
+full_book_info = {k.strip(): v for k, v in full_book_info.items()}
 
 # Serving React frontend
 @app.route('/', defaults={'path': ''})
@@ -33,7 +39,7 @@ def serve(path):
 @app.route('/top-books')
 def get_top_books():
     books = []
-    for title, data in book_info.items():
+    for title, data in top_book_info.items():
         books.append({
             "title": title,
             "author": data.get("author", "Unknown Author"),
@@ -58,7 +64,7 @@ def recommend():
     recommendations = []
     for i, _ in sims:
         title = pt.index[i].strip()
-        info = book_info.get(title, {})
+        info = full_book_info.get(title, {})
         recommendations.append({
             "title": title,
             "author": info.get("author", "Unknown Author"),
