@@ -14,7 +14,7 @@ app = FastAPI()
 # This is now CRITICAL because your frontend is on a different domain (Vercel)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://frontend-zeta-flax-60.vercel.app/"],
+    allow_origins=["https://frontend-zeta-flax-60.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -93,4 +93,5 @@ def recommend(book: str = ''):
 # --- Running the App ---
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
